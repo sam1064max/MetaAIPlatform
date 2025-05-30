@@ -1,0 +1,30 @@
+tool:
+  name: portfolio_analysis
+  version: 1.0.0
+  description: "Portfolio performance analytics and risk assessment"
+  mcp_server: PortfolioServer
+  type: analytics
+
+  parameters:
+    - name: portfolio_id
+      type: string
+      required: true
+    - name: metrics
+      type: array
+      required: false
+      default: [returns, volatility, sharpe, var]
+    - name: benchmark
+      type: string
+      required: false
+      default: SPY
+
+  returns:
+    type: object
+    properties:
+      total_value: number
+      daily_pnl: number
+      total_return: number
+      sharpe_ratio: number
+      volatility: number
+      var_95: number
+      max_drawdown: number

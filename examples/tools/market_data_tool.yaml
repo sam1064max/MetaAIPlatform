@@ -1,0 +1,32 @@
+tool:
+  name: market_data
+  version: 1.0.0
+  description: "Real-time market data, quotes, and historical prices"
+  mcp_server: MarketDataServer
+  type: data
+
+  parameters:
+    - name: symbol
+      type: string
+      required: true
+      description: "Stock ticker symbol (e.g., AAPL, MSFT)"
+    - name: data_type
+      type: string
+      required: false
+      default: quote
+      enum: [quote, history, fundamentals, options]
+    - name: timeframe
+      type: string
+      required: false
+      default: 1d
+      enum: [1d, 5d, 1m, 3m, 1y, 5y]
+
+  returns:
+    type: object
+    properties:
+      symbol: string
+      price: number
+      change: number
+      change_percent: number
+      volume: number
+      timestamp: string
