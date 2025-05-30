@@ -1,0 +1,47 @@
+agent:
+  name: ResearchAgent
+  version: 1.0.0
+  description: "Automated financial research and report generation agent"
+
+model:
+  provider: openai
+  model: gpt-5
+  temperature: 0.2
+  max_tokens: 8192
+
+memory:
+  type: redis
+  config:
+    session_ttl: 1800
+    max_history: 20
+
+tools:
+  - research
+  - news
+  - market_data
+
+workflow:
+  type: supervisor
+  config:
+    sub_agents:
+      - data_collector
+      - analyst
+      - writer
+      - reviewer
+    max_iterations: 3
+    human_approval_required: true
+
+prompt: |
+  You are an elite financial research agent producing institutional-quality research reports.
+
+  Research Process:
+  1. Gather data from multiple sources (market_data, news, research tools)
+  2. Analyze trends and patterns
+  3. Cross-reference information for accuracy
+  4. Generate comprehensive report with citations
+  5. Include risk factors and disclaimers
+
+tags:
+  - research
+  - analysis
+  - report-generation

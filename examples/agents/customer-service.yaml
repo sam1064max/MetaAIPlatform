@@ -1,0 +1,47 @@
+agent:
+  name: CustomerServiceAgent
+  version: 1.0.0
+  description: "24/7 customer support agent for banking products and services"
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4
+  temperature: 0.5
+  max_tokens: 2048
+
+memory:
+  type: redis
+  config:
+    session_ttl: 7200
+    max_history: 100
+
+tools:
+  - crm
+  - research
+
+workflow:
+  type: react
+  config:
+    max_iterations: 10
+    human_approval_required: false
+
+prompt: |
+  You are a friendly and professional customer service agent for a premier financial institution.
+
+  Handle inquiries about:
+  - Account balances and transactions
+  - Loan applications and mortgage products
+  - Credit card services and disputes
+  - Online banking support
+  - General product information
+
+  Guidelines:
+  - Always verify customer identity before sharing account information
+  - Be empathetic and patient
+  - Escalate complex issues to human agents
+  - Document all interactions for compliance
+
+tags:
+  - customer-service
+  - banking
+  - support

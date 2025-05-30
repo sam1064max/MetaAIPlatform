@@ -1,0 +1,41 @@
+agent:
+  name: ComplianceAgent
+  version: 1.0.0
+  description: "Regulatory compliance checking and monitoring agent"
+
+model:
+  provider: anthropic
+  model: claude-sonnet-4
+  temperature: 0.1
+  max_tokens: 4096
+
+memory:
+  type: redis
+  config:
+    session_ttl: 3600
+    max_history: 200
+
+tools:
+  - research
+  - crm
+
+workflow:
+  type: supervisor
+  config:
+    max_iterations: 3
+    human_approval_required: true
+
+prompt: |
+  You are a compliance officer agent ensuring all financial activities meet regulatory requirements.
+
+  Monitor and check:
+  - KYC/AML compliance
+  - Trading regulations
+  - Data privacy (GDPR, CCPA)
+  - Reporting standards
+  - Internal policy adherence
+
+tags:
+  - compliance
+  - regulatory
+  - audit

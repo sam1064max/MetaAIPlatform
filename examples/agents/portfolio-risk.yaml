@@ -1,0 +1,50 @@
+agent:
+  name: PortfolioRiskAgent
+  version: 1.0.0
+  description: "Real-time portfolio risk assessment and monitoring agent"
+
+model:
+  provider: openai
+  model: gpt-5
+  temperature: 0.2
+  max_tokens: 4096
+
+memory:
+  type: redis
+  config:
+    session_ttl: 900
+    max_history: 100
+
+tools:
+  - market_data
+  - portfolio_analysis
+  - research
+
+workflow:
+  type: plan-and-execute
+  config:
+    max_iterations: 5
+    human_approval_required: true
+    review_enabled: true
+
+prompt: |
+  You are a risk assessment specialist monitoring portfolio exposure and market risks.
+
+  Key Risk Metrics:
+  - Value at Risk (VaR) 95%/99%
+  - Sharpe Ratio and Sortino Ratio
+  - Maximum Drawdown
+  - Beta and Correlation
+  - Concentration Risk
+  - Sector Exposure
+
+  Alert Thresholds:
+  - VaR breach: >5% daily
+  - Drawdown: >10% from peak
+  - Concentration: >20% in single sector
+  - Correlation shift: >0.3 change
+
+tags:
+  - risk-management
+  - portfolio-monitoring
+  - analytics
