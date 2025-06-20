@@ -1,0 +1,58 @@
+name: Release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV_TAG=$(git tag --sort=-creatordate | head -2 | tail -1 || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="$PREV_TAG..HEAD"
+          fi
+          {
+            echo "changelog<<DELIM"
+            echo "## What's Changed"
+            git log $RANGE --oneline --no-decorate | while read line; do
+              prefix=$(echo "$line" | grep -oE '^(feat|fix|chore|docs|refactor|ci|test|style)(\(.+\))?!' | head -1)
+              case "$prefix" in
+                feat*) echo "- **Feature:** $(echo "$line" | sed 's/^[^ ]* //')" ;;
+                fix*)  echo "- **Bug Fix:** $(echo "$line" | sed 's/^[^ ]* //')" ;;
+                chore*) echo "- **Chore:** $(echo "$line" | sed 's/^[^ ]* //')" ;;
+                docs*) echo "- **Docs:** $(echo "$line" | sed 's/^[^ ]* //')" ;;
+                ci*)   echo "- **CI:** $(echo "$line" | sed 's/^[^ ]* //')" ;;
+                *)     echo "- $(echo "$line" | sed 's/^[^ ]* //')" ;;
+              esac
+            done
+            echo ""
+            echo "## Docker Images"
+            echo "- \`ghcr.io/sam1064max/metaai-backend:${{ github.ref_name }}\`"
+            echo "- \`ghcr.io/sam1064max/metaai-frontend:${{ github.ref_name }}\`"
+            echo "- \`ghcr.io/sam1064max/metaai-nginx:${{ github.ref_name }}\`"
+            echo "DELIM"
+          } >> $GITHUB_OUTPUT
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          files: |
+            deployment/docker-compose.yml
+            deployment/nginx/*.conf

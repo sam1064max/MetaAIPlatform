@@ -1,0 +1,83 @@
+name: CI
+on:
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black mypy
+          pip install -r backend/requirements.txt
+      - name: Ruff
+        run: ruff check backend/ --output-format=github
+      - name: Black
+        run: black --check backend/
+      - name: MyPy
+        run: mypy backend/ --ignore-missing-imports
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio pytest-cov
+          pip install -r backend/requirements.txt
+      - name: Pytest
+        run: pytest backend/tests/ -v --tb=short --cov=backend --cov-report=term-missing
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bandit
+        run: pip install bandit
+      - name: Bandit security scan
+        run: bandit -r backend/ -f custom --severity high,medium
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Validate backend build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: metaai-backend:test
+      - name: Validate frontend build
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          tags: metaai-frontend:test
+      - name: Validate nginx build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          dockerfile: deployment/nginx/Dockerfile
+          push: false
+          tags: metaai-nginx:test

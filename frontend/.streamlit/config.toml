@@ -1,5 +1,4 @@
 [server]
-baseUrlPath = "/MetaAIPlatform/"
 headless = true
 runOnSave = false
 maxUploadSize = 50

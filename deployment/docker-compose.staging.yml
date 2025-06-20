@@ -2,8 +2,8 @@ version: "3.8"
 
 services:
   nginx:
-    image: ghcr.io/sam1064max/metaai-nginx:latest
-    container_name: metaai-nginx
+    image: ghcr.io/sam1064max/metaai-nginx:staging
+    container_name: metaai-nginx-staging
     restart: unless-stopped
     ports:
       - "80:80"
@@ -17,28 +17,26 @@ services:
       - backend
 
   backend:
-    image: ghcr.io/sam1064max/metaai-backend:latest
-    container_name: metaai-backend
+    image: ghcr.io/sam1064max/metaai-backend:staging
+    container_name: metaai-backend-staging
     restart: unless-stopped
     expose:
       - "8000"
     networks:
       - metaai
     environment:
-      - ENVIRONMENT=production
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/metaai
-      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=staging
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/metaai_staging
+      - REDIS_URL=redis://redis:6379/1
       - QDRANT_URL=http://qdrant:6333
       - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
       - SECRET_KEY=${SECRET_KEY:-change-me-too}
     env_file:
-      - .env
+      - .env.staging
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      qdrant:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
@@ -48,8 +46,8 @@ services:
       start_period: 15s
 
   frontend:
-    image: ghcr.io/sam1064max/metaai-frontend:latest
-    container_name: metaai-frontend
+    image: ghcr.io/sam1064max/metaai-frontend:staging
+    container_name: metaai-frontend-staging
     restart: unless-stopped
     expose:
       - "8501"
@@ -65,7 +63,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: metaai-postgres
+    container_name: metaai-postgres-staging
     restart: unless-stopped
     expose:
       - "5432"
@@ -74,9 +72,9 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=metaai
+      - POSTGRES_DB=metaai_staging
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_staging_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -85,57 +83,23 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: metaai-redis
+    container_name: metaai-redis-staging
     restart: unless-stopped
     expose:
       - "6379"
     networks:
       - metaai
     volumes:
-      - redis_data:/data
+      - redis_staging_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
 
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: metaai-qdrant
-    restart: unless-stopped
-    expose:
-      - "6333"
-    networks:
-      - metaai
-    volumes:
-      - qdrant_data:/qdrant/storage
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:6333/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  grafana:
-    image: grafana/grafana:11.3-ubuntu
-    container_name: metaai-grafana
-    restart: unless-stopped
-    expose:
-      - "3000"
-    networks:
-      - metaai
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_INSTALL_PLUGINS=
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - backend
-
 volumes:
-  postgres_data:
-  redis_data:
-  qdrant_data:
-  grafana_data:
+  postgres_staging_data:
+  redis_staging_data:
 
 networks:
   metaai:
