@@ -1,21 +1,6 @@
 version: "3.8"
 
 services:
-  nginx:
-    image: ghcr.io/sam1064max/metaai-nginx:latest
-    container_name: metaai-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /etc/letsencrypt:/etc/nginx/certs:ro
-    networks:
-      - metaai
-    depends_on:
-      - frontend
-      - backend
-
   backend:
     image: ghcr.io/sam1064max/metaai-backend:latest
     container_name: metaai-backend
@@ -23,7 +8,7 @@ services:
     expose:
       - "8000"
     networks:
-      - metaai
+      - web
     environment:
       - ENVIRONMENT=production
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/metaai
@@ -33,6 +18,13 @@ services:
       - SECRET_KEY=${SECRET_KEY:-change-me-too}
     env_file:
       - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metaai-api.rule=Host(`metaai-api.sushantdev.com`)"
+      - "traefik.http.routers.metaai-api.entrypoints=websecure"
+      - "traefik.http.routers.metaai-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.metaai-api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.metaai-api.priority=100"
     depends_on:
       postgres:
         condition: service_healthy
@@ -54,12 +46,19 @@ services:
     expose:
       - "8501"
     networks:
-      - metaai
+      - web
     environment:
       - STREAMLIT_SERVER_ADDRESS=0.0.0.0
       - STREAMLIT_SERVER_PORT=8501
       - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
-      - API_BASE_URL=http://backend:8000
+      - API_BASE_URL=https://metaai-api.sushantdev.com
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metaai-frontend.rule=Host(`metaai.sushantdev.com`)"
+      - "traefik.http.routers.metaai-frontend.entrypoints=websecure"
+      - "traefik.http.routers.metaai-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.metaai-frontend.loadbalancer.server.port=8501"
+      - "traefik.http.routers.metaai-frontend.priority=50"
     depends_on:
       - backend
 
@@ -70,7 +69,7 @@ services:
     expose:
       - "5432"
     networks:
-      - metaai
+      - web
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -90,7 +89,7 @@ services:
     expose:
       - "6379"
     networks:
-      - metaai
+      - web
     volumes:
       - redis_data:/data
     healthcheck:
@@ -106,7 +105,7 @@ services:
     expose:
       - "6333"
     networks:
-      - metaai
+      - web
     volumes:
       - qdrant_data:/qdrant/storage
     healthcheck:
@@ -122,12 +121,17 @@ services:
     expose:
       - "3000"
     networks:
-      - metaai
+      - web
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_INSTALL_PLUGINS=
     volumes:
       - grafana_data:/var/lib/grafana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.metaai-observability.rule=Host(`metaai-observability.sushantdev.com`)"
+      - "traefik.http.routers.metaai-observability.entrypoints=websecure"
+      - "traefik.http.routers.metaai-observability.tls.certresolver=letsencrypt"
+      - "traefik.http.services.metaai-observability.loadbalancer.server.port=3000"
     depends_on:
       - backend
 
@@ -138,5 +142,5 @@ volumes:
   grafana_data:
 
 networks:
-  metaai:
-    driver: bridge
+  web:
+    external: true

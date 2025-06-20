@@ -74,10 +74,4 @@ jobs:
           context: ./frontend
           push: false
           tags: metaai-frontend:test
-      - name: Validate nginx build
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          dockerfile: deployment/nginx/Dockerfile
-          push: false
-          tags: metaai-nginx:test
+      # Traefik is provided by the existing VPS instance; no build needed.

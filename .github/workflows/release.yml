@@ -42,7 +42,6 @@ jobs:
             echo "## Docker Images"
             echo "- \`ghcr.io/sam1064max/metaai-backend:${{ github.ref_name }}\`"
             echo "- \`ghcr.io/sam1064max/metaai-frontend:${{ github.ref_name }}\`"
-            echo "- \`ghcr.io/sam1064max/metaai-nginx:${{ github.ref_name }}\`"
             echo "DELIM"
           } >> $GITHUB_OUTPUT
       - name: Create GitHub Release
@@ -55,4 +54,3 @@ jobs:
           generate_release_notes: false
           files: |
             deployment/docker-compose.yml
-            deployment/nginx/*.conf

@@ -36,16 +36,8 @@ SECRET_KEY=<generate-random>
 GRAFANA_PASSWORD=<generate-random>
 EOF
 
-# Create required directories
-mkdir -p /etc/letsencrypt
-
-# Obtain SSL certificates
-sudo certbot certonly --standalone \
-  -d metaai.sushantdev.com \
-  -d metaai-api.sushantdev.com \
-  -d metaai-observability.sushantdev.com \
-  -d staging-metaai.sushantdev.com \
-  -d staging-metaai-api.sushantdev.com
+# Ensure the web network exists (Traefik must already be running)
+docker network inspect web >/dev/null 2>&1 || docker network create web
 ```
 
 ## Deployment (CI/CD)
@@ -119,9 +111,10 @@ docker compose logs --tail=50 backend
 ```
 
 ### SSL Certificate Expired
+Traefik auto-renews certificates via Let's Encrypt. No manual intervention needed. Check Traefik logs:
+
 ```bash
-sudo certbot renew
-docker compose restart nginx
+docker logs traefik --tail=50 | grep -i acme
 ```
 
 ### Container OOM

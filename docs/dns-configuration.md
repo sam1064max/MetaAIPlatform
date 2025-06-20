@@ -40,15 +40,11 @@ Enable the orange cloud (proxied) for all A records to benefit from:
 | `metaai-api.sushantdev.com/*` | Cache Level: Bypass |
 | `metaai.sushantdev.com/*` | Cache Level: Standard |
 
-## Nginx SSL Configuration
+## Traefik SSL Configuration
 
-On the VPS, SSL certificates are obtained via Let's Encrypt and mounted into the Nginx container:
+SSL is handled by the existing Traefik instance on the VPS via Let's Encrypt (certresolver). Traefik automatically discovers services through Docker labels and provisions certificates.
 
-```bash
-sudo certbot certonly --standalone -d metaai.sushantdev.com -d metaai-api.sushantdev.com -d metaai-observability.sushantdev.com
-```
-
-Certificates are mounted at `/etc/nginx/certs/` inside the container.
+No manual certbot commands needed — Traefik handles the ACME protocol automatically.
 
 ## Network Architecture
 
@@ -62,9 +58,11 @@ Cloudflare (SSL termination, DDoS protection)
 VPS :80/:443
   │
   ▼
-Nginx Container (reverse proxy, SSL, gzip, security headers)
+Traefik (reverse proxy, SSL, Docker provider)
   │
   ├── metaai.sushantdev.com ──► frontend:8501
   ├── metaai-api.sushantdev.com ──► backend:8000
   └── metaai-observability.sushantdev.com ──► grafana:3000
+  │
+  └── All internal services on `web` Docker network
 ```

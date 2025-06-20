@@ -54,18 +54,6 @@ jobs:
             ${{ env.REGISTRY }}/sam1064max/metaai-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Build and push nginx
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          dockerfile: deployment/nginx/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/sam1064max/metaai-nginx:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/sam1064max/metaai-nginx:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
   deploy-staging:
     needs: build
     if: github.ref_name == 'develop'
