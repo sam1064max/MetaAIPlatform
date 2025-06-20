@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db import get_db
-from backend.security.auth import get_current_user, require_role
+from backend.security.auth import require_role
 from backend.services.governance_service import GovernanceService
 
 router = APIRouter()

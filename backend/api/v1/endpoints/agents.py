@@ -1,10 +1,7 @@
-import uuid
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.db import get_db
-from backend.db.models import Agent, AgentVersion, Execution
 from backend.schemas.agent import (
     AgentCreate,
     AgentUpdate,
@@ -12,7 +9,6 @@ from backend.schemas.agent import (
     AgentExecutionRequest,
     AgentExecutionResponse,
 )
-from backend.schemas.evaluation import EvaluationResponse
 from backend.security.auth import get_current_user
 from backend.services.agent_service import AgentService
 
