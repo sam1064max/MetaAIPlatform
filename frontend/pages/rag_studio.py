@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 from components.metrics import metric_card, status_badge
 
-API_BASE = "http://localhost:8000"
+import os; API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 
 def fetch_knowledge_bases():
