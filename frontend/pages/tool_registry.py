@@ -3,7 +3,7 @@ import json
 import requests
 from components.metrics import tool_card, status_badge
 
-API_BASE = "http://localhost:8000"
+import os; API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 MCP_SERVERS = ["market-data-server", "portfolio-server", "crm-server", "research-server", "news-server"]
 

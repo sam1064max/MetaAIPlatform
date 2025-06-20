@@ -1,7 +1,7 @@
 import streamlit as st
 from components.metrics import status_badge
 
-API_BASE = "http://localhost:8000"
+import os; API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 
 def show():

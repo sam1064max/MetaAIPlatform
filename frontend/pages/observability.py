@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from components.metrics import metric_card, chart_container, status_badge
 import requests
 
-API_BASE = "http://localhost:8000"
+import os; API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 
 def fetch_traces():
