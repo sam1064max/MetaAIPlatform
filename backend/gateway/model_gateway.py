@@ -1,9 +1,6 @@
-import random
 import logging
 from typing import Any
 from datetime import datetime, timezone
-
-from backend.config import settings
 
 logger = logging.getLogger("metaai.gateway")
 

@@ -1,7 +1,6 @@
 import hashlib
 import random
 import logging
-from typing import Any
 
 logger = logging.getLogger("metaai.rag")
 
@@ -17,7 +16,7 @@ class DocumentProcessor:
         while start < len(text):
             end = min(start + self.chunk_size, len(text))
             chunk_text = text[start:end]
-            chunk_id = hashlib.md5(chunk_text.encode()).hexdigest()[:12]
+            chunk_id = hashlib.md5(chunk_text.encode(), usedforsecurity=False).hexdigest()[:12]
             chunks.append({
                 "id": chunk_id,
                 "text": chunk_text,
@@ -36,7 +35,7 @@ class DocumentProcessor:
                 sub_chunks = self.chunk_by_fixed_size(para)
                 chunks.extend(sub_chunks)
             else:
-                chunk_id = hashlib.md5(para.encode()).hexdigest()[:12]
+                chunk_id = hashlib.md5(para.encode(), usedforsecurity=False).hexdigest()[:12]
                 chunks.append({
                     "id": chunk_id,
                     "text": para,
@@ -53,7 +52,7 @@ class DocumentProcessor:
         chunks = []
         for sent in sentences:
             if len(current) + len(sent) > self.chunk_size and current:
-                chunk_id = hashlib.md5(current.encode()).hexdigest()[:12]
+                chunk_id = hashlib.md5(current.encode(), usedforsecurity=False).hexdigest()[:12]
                 chunks.append({
                     "id": chunk_id,
                     "text": current,
@@ -63,7 +62,7 @@ class DocumentProcessor:
             else:
                 current += (" " + sent) if current else sent
         if current:
-            chunk_id = hashlib.md5(current.encode()).hexdigest()[:12]
+            chunk_id = hashlib.md5(current.encode(), usedforsecurity=False).hexdigest()[:12]
             chunks.append({
                 "id": chunk_id,
                 "text": current,

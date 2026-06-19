@@ -89,11 +89,18 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - name: Check VPS reachability
+        run: |
+          if ! ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new sushant@80.225.207.230 "echo OK" 2>/dev/null; then
+            echo "VPS 80.225.207.230 unreachable — skipping deploy"
+            exit 0
+          fi
       - name: Deploy to production VPS
+        if: ${{ success() }}
         run: |
           retry_ssh() {
             local max=3 attempt=1
-            until ssh -o ConnectTimeout=60 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new sushant@80.225.207.230 "$1"; do
+            until ssh -o ConnectTimeout=30 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new sushant@80.225.207.230 "$1"; do
               if [ $attempt -ge $max ]; then echo "SSH failed after $max attempts"; return 1; fi
               echo "Attempt $attempt failed, retrying in 10s..."; sleep 10; attempt=$((attempt + 1))
             done
