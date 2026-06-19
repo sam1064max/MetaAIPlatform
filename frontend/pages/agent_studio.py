@@ -57,14 +57,14 @@ def build_yaml_config(name, description, system_prompt, model, memory, workflow,
     return yaml.dump(config, default_flow_style=False, sort_keys=False)
 
 
-def generate_agent(config_yaml):
+def create_agent(name, description, config_yaml):
     try:
         r = requests.post(
-            f"{API_BASE}/api/v1/agents/generate",
-            json={"config": yaml.safe_load(config_yaml)},
+            f"{API_BASE}/api/v1/agents",
+            json={"name": name, "description": description, "config_yaml": config_yaml},
             timeout=10,
         )
-        if r.status_code == 200:
+        if r.status_code == 201:
             return r.json()
     except Exception:
         pass
@@ -176,8 +176,8 @@ def show():
         with gen_col1:
             if st.button("🚀 Generate Agent", type="primary", use_container_width=True):
                 with st.spinner("Generating agent configuration..."):
-                    result = generate_agent(config_yaml)
-                agent_id = result.get("agent_id", "unknown")
+                    result = create_agent(name, description, config_yaml)
+                agent_id = result.get("id", result.get("agent_id", "unknown"))
                 st.success(f"Agent created successfully!")
                 st.info(f"Agent ID: `{agent_id}`")
                 st.session_state.generated_yaml = config_yaml
