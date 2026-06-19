@@ -7,32 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added
-- Agent Studio with live YAML editing and validation
-- Agent Marketplace for publishing and discovering agents
-- Tool Registry with MCP-compatible tool definitions
-- RAG Studio with Qdrant vector store and hybrid search
-- Evaluation Center with DeepEval metrics integration
-- Observability dashboard with OpenTelemetry tracing
-- Governance engine with RBAC and audit logging
-- Nginx reverse proxy with HTTPS, gzip, and security headers
-- Subdomain-based routing (metaai.sushantdev.com, metaai-api.sushantdev.com, metaai-observability.sushantdev.com)
-- CI/CD pipeline with Ruff, Black, MyPy, Pytest, Bandit, Docker build validation
-- Staging environment (staging-metaai.sushantdev.com, staging-metaai-api.sushantdev.com)
-- Automated release workflow with changelog generation
-- GitHub Project board with Backlog, Ready, In Progress, Code Review, QA, UAT, Done columns
-
-### Improved
-- Traefik reverse proxy with subdomain-based Host rules (external instance via Docker provider)
-- Per-service Docker images in GHCR (metaai-backend, metaai-frontend)
-- Image-based deployment (no git pull on VPS)
-- Production uvicorn with 4 workers (no reload)
-- Cloudflare DNS configuration with Full (Strict) SSL
-
 ### Fixed
-- Streamlit subpath configuration for subdomain-based routing
-- Removed ssh-keyscan from deploy step (uses webfactory/ssh-agent only)
-- Production readiness checklist gating before deployment
+- Frontend API paths corrected across all 9 pages to match backend endpoints (dashboard, evaluations, governance, RAG, tools, observability, agent studio)
+- Dashboard stats, cost trends, token usage, and model usage now query PostgreSQL via SQLAlchemy instead of returning hardcoded values
+
+### Added
+- Database auto-initialization on startup (tables created via `Base.metadata.create_all`)
+- Alembic migration scaffolding (env.py, script.py.mako, alembic.ini)
+- `backend/seed.py` — seed script with admin user, 3 agents (Wealth Advisor, Research, Compliance), 5 tools (market_data, portfolio_analysis, crm, research, news), 1 sample knowledge base
 
 ## [1.0.0] - 2025-06-20
 
