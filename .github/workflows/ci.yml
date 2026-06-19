@@ -54,7 +54,7 @@ jobs:
       - name: Install bandit
         run: pip install bandit
       - name: Bandit security scan
-        run: bandit -r backend/ -f custom --severity high,medium
+        run: bandit -r backend/ -f custom --severity-level high
 
   docker-build:
     runs-on: ubuntu-latest

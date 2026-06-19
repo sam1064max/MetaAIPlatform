@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import TypedDict, Any, Optional, Literal
+from typing import TypedDict, Any, Optional
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 
