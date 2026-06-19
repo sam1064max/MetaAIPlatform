@@ -1,3 +1,8 @@
+# ---------------------------------------------------------------------------
+# MetaAI Platform - Backend Entrypoint
+# FastAPI application with CORS, request logging, health checks, and router
+# registration. Each API module is self-contained in api/v1/endpoints/.
+# ---------------------------------------------------------------------------
 import time
 import logging
 
@@ -17,6 +22,7 @@ from backend.api.v1.endpoints import (
     dashboard,
 )
 
+# Logging: INFO level in development, WARNING in production to reduce noise
 logging.basicConfig(level=logging.INFO if settings.DEBUG else logging.WARNING)
 logger = logging.getLogger("metaai")
 
@@ -24,11 +30,14 @@ logger = logging.getLogger("metaai")
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
+    # Only expose interactive docs in development
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
 )
 
-# ---- CORS ----
+# -----------------------------------------------------------------------
+# CORS: Allow all origins in development. Tighten in production.
+# -----------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -37,7 +46,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---- Request logging middleware ----
+# -----------------------------------------------------------------------
+# Request logging: Logs method, path, status, and duration for every call.
+# -----------------------------------------------------------------------
 @app.middleware("http")
 async def request_logging_middleware(request: Request, call_next):
     start = time.monotonic()
@@ -53,7 +64,9 @@ async def request_logging_middleware(request: Request, call_next):
     return response
 
 
-# ---- Root and health ----
+# -----------------------------------------------------------------------
+# Health & root endpoints for load balancer and CI/CD verification.
+# -----------------------------------------------------------------------
 @app.get("/")
 async def root():
     return {
@@ -69,7 +82,9 @@ async def health():
     return {"status": "ok", "version": settings.VERSION}
 
 
-# ---- Include routers ----
+# -----------------------------------------------------------------------
+# Router registration: Each domain maps to a versioned prefix.
+# -----------------------------------------------------------------------
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(agents.router, prefix="/api/v1/agents", tags=["Agents"])
 app.include_router(tools.router, prefix="/api/v1/tools", tags=["Tools"])
@@ -80,6 +95,9 @@ app.include_router(observability.router, prefix="/api/v1", tags=["Observability"
 app.include_router(dashboard.router, prefix="/api/v1", tags=["Dashboard"])
 
 
+# -----------------------------------------------------------------------
+# Global exception handler: Captures unhandled errors and returns 500.
+# -----------------------------------------------------------------------
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error("Unhandled error on %s: %s", request.url.path, str(exc))

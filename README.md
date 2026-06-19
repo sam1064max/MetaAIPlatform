@@ -1,10 +1,13 @@
 # MetaAI Platform — Enterprise AI Agent Platform
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/sushantdev/MetaAIPlatform)
+[![CI/CD](https://github.com/sam1064max/MetaAIPlatform/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/sam1064max/MetaAIPlatform/actions/workflows/ci-cd.yml)
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg?logo=docker)](https://www.docker.com/)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![LangGraph](https://img.shields.io/badge/langgraph-%F0%9F%94%97-purple)](https://langchain-ai.github.io/langgraph/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B.svg?logo=streamlit)](https://streamlit.io/)
+[![GitHub release](https://img.shields.io/github/v/release/sam1064max/MetaAIPlatform)](https://github.com/sam1064max/MetaAIPlatform/releases)
 
 A production-grade internal AI Foundry platform for financial services teams to **create, deploy, evaluate, monitor, and manage** AI agents without writing orchestration code.
 
