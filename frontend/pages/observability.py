@@ -70,7 +70,7 @@ def fetch_tool_calls():
 
 def fetch_failures():
     try:
-        r = requests.get(f"{API_BASE}/api/v1/observability/failures", timeout=3)
+        r = requests.get(f"{API_BASE}/api/v1/failure-analysis", timeout=3)
         if r.status_code == 200:
             return r.json()
     except Exception:
@@ -90,7 +90,7 @@ def fetch_failures():
 
 def fetch_cost_analysis():
     try:
-        r = requests.get(f"{API_BASE}/api/v1/observability/costs", timeout=3)
+        r = requests.get(f"{API_BASE}/api/v1/cost-analysis", timeout=3)
         if r.status_code == 200:
             return r.json()
     except Exception:

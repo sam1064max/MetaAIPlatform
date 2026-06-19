@@ -12,7 +12,7 @@ import os; API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000")
 
 def fetch_metrics():
     try:
-        r = requests.get(f"{API_BASE}/api/v1/dashboard/metrics", timeout=3)
+        r = requests.get(f"{API_BASE}/api/v1/dashboard/stats", timeout=3)
         if r.status_code == 200:
             return r.json()
     except Exception:
@@ -31,7 +31,14 @@ def fetch_cost_trends():
     try:
         r = requests.get(f"{API_BASE}/api/v1/dashboard/cost-trends", timeout=3)
         if r.status_code == 200:
-            return r.json()
+            data = r.json()
+            trends = data.get("trends", [])
+            return {
+                "dates": [t["date"] for t in trends],
+                "llm_cost": [t["total_cost"] for t in trends],
+                "infra_cost": [0 for _ in trends],
+                "total_cost": None,
+            }
     except Exception:
         pass
     dates = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(30, -1, -1)]
@@ -47,7 +54,14 @@ def fetch_token_usage():
     try:
         r = requests.get(f"{API_BASE}/api/v1/dashboard/token-usage", timeout=3)
         if r.status_code == 200:
-            return r.json()
+            data = r.json()
+            usage = data.get("usage", [])
+            if usage:
+                return {
+                    "models": ["gpt-5", "claude-sonnet-4", "gemini-2", "deepseek-v3", "ollama"],
+                    "input_tokens": [u["input_tokens"] for u in usage[-5:]],
+                    "output_tokens": [u["output_tokens"] for u in usage[-5:]],
+                }
     except Exception:
         pass
     models = ["gpt-5", "claude-sonnet-4", "gemini-2", "deepseek-v3", "ollama"]
@@ -62,7 +76,12 @@ def fetch_agent_activity():
     try:
         r = requests.get(f"{API_BASE}/api/v1/dashboard/agent-activity", timeout=3)
         if r.status_code == 200:
-            return r.json()
+            data = r.json()
+            activity = data.get("activity", [])
+            return {
+                "dates": [a["date"] for a in activity],
+                "executions": [a["executions"] for a in activity],
+            }
     except Exception:
         pass
     dates = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(29, -1, -1)]
@@ -76,7 +95,12 @@ def fetch_model_usage():
     try:
         r = requests.get(f"{API_BASE}/api/v1/dashboard/model-usage", timeout=3)
         if r.status_code == 200:
-            return r.json()
+            data = r.json()
+            models = data.get("models", [])
+            return {
+                "models": [m["model"] for m in models],
+                "calls": [m["percentage"] for m in models],
+            }
     except Exception:
         pass
     return {
@@ -100,13 +124,13 @@ def show():
     with cols[1]:
         metric_card("Total Executions", f"{metrics['total_executions']:,}", delta=12.4, icon="⚡")
     with cols[2]:
-        metric_card("Total LLM Calls", f"{metrics['total_llm_calls']:,}", delta=8.7, icon="🧠")
+        metric_card("Total Tokens", f"{metrics.get('total_tokens_used', 0):,}", delta=8.7, icon="🧠")
     with cols[3]:
-        metric_card("Monthly Cost", f"${metrics['monthly_cost']:,.2f}", delta=-3.2, icon="💰")
+        metric_card("Total Cost", f"${metrics.get('total_cost_usd', 0):,.2f}", delta=-3.2, icon="💰")
     with cols[4]:
-        metric_card("Avg Latency", f"{metrics['avg_latency']}s", delta=-5.1, icon="⏱️")
+        metric_card("Avg Latency", f"{metrics.get('avg_latency_ms', 0)}ms", delta=-5.1, icon="⏱️")
     with cols[5]:
-        metric_card("Success Rate", f"{metrics['success_rate']}%", delta=1.8, icon="✅")
+        metric_card("Success Rate", f"{metrics.get('success_rate_pct', 0)}%", delta=1.8, icon="✅")
 
     st.markdown("---")
 

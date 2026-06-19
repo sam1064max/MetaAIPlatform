@@ -70,8 +70,8 @@ def fetch_tools():
 
 def register_tool(data):
     try:
-        r = requests.post(f"{API_BASE}/api/v1/tools/register", json=data, timeout=5)
-        if r.status_code == 200:
+        r = requests.post(f"{API_BASE}/api/v1/tools", json=data, timeout=5)
+        if r.status_code == 201:
             return r.json()
     except Exception:
         pass

@@ -95,6 +95,16 @@ app.include_router(observability.router, prefix="/api/v1", tags=["Observability"
 app.include_router(dashboard.router, prefix="/api/v1", tags=["Dashboard"])
 
 
+@app.on_event("startup")
+async def startup():
+    from backend.db import init_db
+    try:
+        await init_db()
+        logger.info("Database tables initialized")
+    except Exception as e:
+        logger.warning("Database init skipped (not ready yet): %s", e)
+
+
 # -----------------------------------------------------------------------
 # Global exception handler: Captures unhandled errors and returns 500.
 # -----------------------------------------------------------------------
