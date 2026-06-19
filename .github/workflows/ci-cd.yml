@@ -111,17 +111,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      # Use webfactory/ssh-agent for key loading (handles agent lifecycle).
+      # VPS may be down (free-tier), so known_hosts is populated with || true
+      # to let the retry logic in Deploy step handle connectivity.
       - name: Install SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 80.225.207.230 >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      
+      - name: Add VPS to known hosts
+        run: ssh-keyscan -H 80.225.207.230 >> ~/.ssh/known_hosts || echo "Warning: VPS unreachable, known_hosts entry skipped"
       
       - name: Deploy to VPS
         run: |
-          # SSH options: extended connect timeout, keepalive, retry
-          SSH_OPTS="-o ConnectTimeout=60 -o ServerAliveInterval=30 -o ServerAliveCountMax=3"
+          # SSH options: extended connect timeout, keepalive, retry, accept-new host key
+          SSH_OPTS="-o ConnectTimeout=60 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new"
           SSH_CMD="ssh $SSH_OPTS sushant@80.225.207.230"
           
           # Retry wrapper for SSH commands
