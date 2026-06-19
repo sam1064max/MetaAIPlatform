@@ -1,8 +1,6 @@
 import asyncio
 import uuid
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from backend.db import async_session, init_db
 from backend.db.models import User, Tool, Agent, AgentVersion, KnowledgeBase
 

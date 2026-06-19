@@ -2,9 +2,7 @@ import functools
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Callable
-
-from backend.config import settings
+from typing import Callable
 
 logger = logging.getLogger("metaai.tracing")
 
