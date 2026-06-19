@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - GitHub Project board with Backlog, Ready, In Progress, Code Review, QA, UAT, Done columns
 
 ### Improved
-- Switched from Traefik to Nginx for reverse proxy
-- Per-service Docker images in GHCR (metaai-backend, metaai-frontend, metaai-nginx)
+- Traefik reverse proxy with subdomain-based Host rules (external instance via Docker provider)
+- Per-service Docker images in GHCR (metaai-backend, metaai-frontend)
 - Image-based deployment (no git pull on VPS)
 - Production uvicorn with 4 workers (no reload)
 - Cloudflare DNS configuration with Full (Strict) SSL
